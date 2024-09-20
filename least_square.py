@@ -24,8 +24,8 @@ print(f"Training Features:\n{x}\n")
 y = df['quality']
 print(f"Labels:\n{y}\n")
 
-# split data into 30% testing and 70% training
-x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.3, random_state=0)
+# split data into 50% testing and 50% training
+x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.5, random_state=0)
 
 # linear regression model
 lr = LinearRegression()
