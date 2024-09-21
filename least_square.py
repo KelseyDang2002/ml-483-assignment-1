@@ -9,7 +9,7 @@ from sklearn.metrics import r2_score, mean_squared_error as mse
 import time
 
 TEST_DATA_PERCENTAGE = 0.3 # 30% testing and 70% training
-POLYNOMIAL_ORDER = 2
+POLYNOMIAL_ORDER = 5
 
 '''Main'''
 def main():
@@ -23,15 +23,31 @@ def split_data():
     print(f"Dataframe:\n{df}\n")
 
     # drop label column to only get the features
-    x = df.drop(['quality'], axis=1).values
+    # x = df.drop(['quality'], axis=1).values
+    x = df[["fixed acidity",
+            "volatile acidity",
+            "citric acid",
+            "residual sugar",
+            "chlorides",
+            "free sulfur dioxide",
+            "total sulfur dioxide",
+            "density",
+            "pH",
+            "sulphates",
+            "alcohol"
+        ]]
     print(f"Training Features:\n{x}\n")
 
+    # preprocess training data TODO
+    poly = PolynomialFeatures(degree=POLYNOMIAL_ORDER, interaction_only=False, include_bias=False)
+    poly_features = poly.fit_transform(x)
+
     # label only column
-    y = df['quality'].values
+    y = df['quality']
     print(f"Labels (quality):\n{y}\n")
 
     # split data
-    X_train, X_test, y_train, y_test = train_test_split(x, y, test_size=TEST_DATA_PERCENTAGE, random_state=0)
+    X_train, X_test, y_train, y_test = train_test_split(poly_features, y, test_size=TEST_DATA_PERCENTAGE, random_state=0)
     return X_train, X_test, y_train, y_test
 
 '''Plot'''
@@ -49,8 +65,8 @@ def linear_regression_model(X_train, X_test, y_train, y_test):
     lr = LinearRegression()
 
     # preprocess training data TODO
-    poly = PolynomialFeatures(degree=POLYNOMIAL_ORDER, interaction_only=False, include_bias=False)
-    poly_features = poly.fit_transform(X_train.reshape(-1, 1))
+    # poly = PolynomialFeatures(degree=POLYNOMIAL_ORDER, interaction_only=False, include_bias=False)
+    # poly_features = poly.fit_transform(X_train.reshape(-1, 1))
 
     start = time.time()
 
@@ -62,8 +78,8 @@ def linear_regression_model(X_train, X_test, y_train, y_test):
     
     # print y-intercept (b in mx + b)
     print(f"y-intercept: {lr.intercept_}\n")
-    # print coefficients (m in mx + b), there should be 11 coefficients for the 11 training features
-    print(f"11 Coefficients:\n{lr.coef_}\n")
+    # print coefficients (m in mx + b)
+    # print(f"Coefficients:\n{lr.coef_}\n")
 
     # predict quality based on X_test
     y_pred_test = lr.predict(X_test)
