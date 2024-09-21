@@ -6,9 +6,10 @@ from sklearn.preprocessing import PolynomialFeatures
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LinearRegression
 from sklearn.metrics import r2_score, mean_squared_error as mse
+import time
 
 TEST_DATA_PERCENTAGE = 0.3 # 30% testing and 70% training
-POLYNOMIAL_ORDER = 1
+POLYNOMIAL_ORDER = 2
 
 '''Main'''
 def main():
@@ -25,7 +26,7 @@ def split_data():
     x = df.drop(['quality'], axis=1).values
     print(f"Training Features:\n{x}\n")
 
-    # label column
+    # label only column
     y = df['quality'].values
     print(f"Labels (quality):\n{y}\n")
 
@@ -36,6 +37,7 @@ def split_data():
 '''Plot'''
 def plot(x_axis, y_axis, title):
     plt.scatter(x_axis, y_axis)
+    plt.plot(x_axis, y_axis, c="red")
     plt.xlabel("Actual Quality")
     plt.ylabel("Predicted Quality")
     plt.title(title)
@@ -47,11 +49,16 @@ def linear_regression_model(X_train, X_test, y_train, y_test):
     lr = LinearRegression()
 
     # preprocess training data TODO
-    poly = PolynomialFeatures(degree=POLYNOMIAL_ORDER, interaction_only=False)
-    poly.fit_transform(X_train)
+    poly = PolynomialFeatures(degree=POLYNOMIAL_ORDER, interaction_only=False, include_bias=False)
+    poly_features = poly.fit_transform(X_train.reshape(-1, 1))
+
+    start = time.time()
 
     # train the model with X_train and y_train
     lr.fit(X_train, y_train)
+    
+    end = time.time()
+    print(f"Training time: {end - start} seconds\n")
     
     # print y-intercept (b in mx + b)
     print(f"y-intercept: {lr.intercept_}\n")
