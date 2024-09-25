@@ -8,14 +8,14 @@ from sklearn.metrics import r2_score, mean_squared_error
 import time
 
 TEST_DATA_PERCENTAGE = 0.2
-POLYNOMIAL_ORDER = 8
+POLYNOMIAL_ORDER = 2
 
 '''Main'''
 def main():
     x, y = features_and_label()
     X_train, X_test, y_train, y_test = split_data(x, y)
     # Least Square with sklearn
-    order = 6
+    order = 1
     while order <= POLYNOMIAL_ORDER:
         try:
             least_square_sklearn(X_train, X_test, y_train, y_test, order)
@@ -56,8 +56,7 @@ def features_and_label():
     # check for any null or missing values
     print(f"Check for null or missing values:\n{df.isnull().sum()}\n")
 
-    # drop label column to only get the features
-    # x = df.drop(['quality'], axis=1).values
+    # get training features
     x = df[["fixed acidity",
             "volatile acidity",
             "citric acid",
@@ -70,6 +69,7 @@ def features_and_label():
             "sulphates",
             "alcohol"
         ]].values
+    
     print(f"Training Features:\n{x}\n")
 
     # label only column
@@ -84,13 +84,20 @@ def split_data(x, y):
 
 # '''Preprocess dataset'''
 def preprocess_dataset(X_train, X_test, order):
+    # before preprocessing
+    print(f"X_train: {X_train[0]}")
+    print(f"X_test: {X_test[0]}\n")
+
     # preprocess data
     scalar = StandardScaler()
     X_train_scaled = scalar.fit_transform(X_train)
     X_test_scaled = scalar.fit_transform(X_test)
 
+    # after preprocessing
+    print(f"X_train_scaled: {X_train_scaled[0]}")
+    print(f"X_test_scaled: {X_test_scaled[0]}\n")
+
     # polynomial features
-    # order = 1
     poly = PolynomialFeatures(degree=order, interaction_only=False, include_bias=False)
     X_train_poly = poly.fit_transform(X_train_scaled)
     X_test_poly = poly.fit_transform(X_test_scaled)
