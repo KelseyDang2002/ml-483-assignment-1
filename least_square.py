@@ -26,7 +26,7 @@ def main():
             break
 
     # Least Square manual
-    X_train_scaled, X_test_scaled, X_train_poly, X_test_poly = preprocess_dataset(X_train, X_test, 2)
+    X_train_poly, X_test_poly = preprocess_dataset(X_train, X_test, 2)
     X_train_poly_intercept = np.hstack([np.ones((X_train_poly.shape[0], 1)), X_train_poly])  # Add intercept term
     w_manual = least_squares_manual(X_train_poly_intercept, y_train)
     print(f"Manual Least Squares Weight ({len(w_manual)}): {w_manual}\n")
@@ -109,14 +109,14 @@ def preprocess_dataset(X_train, X_test, order):
     print("-" * 75)
     print(f"Polynomial Order: {order}\n")
 
-    return X_train_scaled, X_test_scaled, X_train_poly, X_test_poly
+    return X_train_poly, X_test_poly
 
 '''Linear Regression'''
 def least_square_sklearn(X_train, X_test, y_train, y_test, order):
     # linear regression model
     lr = LinearRegression()
 
-    X_train_scaled, X_test_scaled, X_train_poly, X_test_poly = preprocess_dataset(X_train, X_test, order)
+    X_train_poly, X_test_poly = preprocess_dataset(X_train, X_test, order)
 
     start = time.time()
 
