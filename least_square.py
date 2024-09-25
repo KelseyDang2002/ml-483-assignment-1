@@ -84,7 +84,7 @@ def split_data(x, y):
     X_train, X_test, y_train, y_test = train_test_split(x, y, test_size=TEST_DATA_PERCENTAGE, random_state=0)
     return X_train, X_test, y_train, y_test
 
-# '''Preprocess dataset'''
+'''Preprocess dataset'''
 def preprocess_dataset(X_train, X_test, order):
     # before preprocessing
     print(f"X_train: {X_train[0]}")
