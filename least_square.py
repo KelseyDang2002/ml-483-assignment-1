@@ -87,6 +87,7 @@ def split_data(x, y):
 '''Preprocess dataset'''
 def preprocess_dataset(X_train, X_test, order):
     # before preprocessing
+    print("Before preprocessing:")
     print(f"X_train: {X_train[0]}")
     print(f"X_test: {X_test[0]}\n")
 
@@ -96,6 +97,7 @@ def preprocess_dataset(X_train, X_test, order):
     X_test_scaled = scalar.fit_transform(X_test)
 
     # after preprocessing
+    print("After preprocessing:")
     print(f"X_train_scaled: {X_train_scaled[0]}")
     print(f"X_test_scaled: {X_test_scaled[0]}\n")
 
