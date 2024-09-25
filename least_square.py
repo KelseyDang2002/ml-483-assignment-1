@@ -8,7 +8,7 @@ from sklearn.metrics import r2_score, mean_squared_error
 import time
 
 TEST_DATA_PERCENTAGE = 0.2
-POLYNOMIAL_ORDER = 2
+POLYNOMIAL_ORDER = 8 # tested up to 8, but 2 seems to be the best model
 
 '''Main'''
 def main():
@@ -26,16 +26,18 @@ def main():
             break
 
     # Least Square manual
-    # X_train_scaled, X_test_scaled, X_train_poly, X_test_poly = preprocess_dataset(X_train, X_test)
-    # X_train_poly = np.hstack([np.ones((X_train_scaled.shape[0], 1)), X_train_scaled])  # Add intercept term
-    # w_manual = least_squares_manual(X_train_poly, y_train)
-    # print(f"Manual Least Squares Weight ({len(w_manual)}): {w_manual}\n")
+    X_train_scaled, X_test_scaled, X_train_poly, X_test_poly = preprocess_dataset(X_train, X_test, 2)
+    X_train_poly_intercept = np.hstack([np.ones((X_train_poly.shape[0], 1)), X_train_poly])  # Add intercept term
+    w_manual = least_squares_manual(X_train_poly_intercept, y_train)
+    print(f"Manual Least Squares Weight ({len(w_manual)}): {w_manual}\n")
     
-    # y_pred_train_manual = w_manual.predict(X_train_poly)
-    # train_rmse = np.sqrt(mean_squared_error(y_train, w_manual))
-    # print(f"Training RMSE Score (close to 0 = better):\t{train_rmse:.6f}")
-    # train_r2 = r2_score(y_train, w_manual)
-    # print(f"Training R-Squared Score (close to 1 = better):\t{train_r2:.6f}\n")
+    # Least Square manual RMSE and R-Squared testing
+    X_test_poly_intercept = np.hstack([np.ones((X_test_poly.shape[0], 1)), X_test_poly])  # Add intercept term
+    y_pred_test_manual = X_test_poly_intercept.dot(w_manual)
+    train_rmse = np.sqrt(mean_squared_error(y_test, y_pred_test_manual))
+    print(f"Testing RMSE Score (close to 0 = better):\t{train_rmse:.6f}")
+    train_r2 = r2_score(y_test, y_pred_test_manual)
+    print(f"Testing R-Squared Score (close to 1 = better):\t{train_r2:.6f}\n")
 
 '''Plot'''
 def plot(x_axis, y_axis, title, x_label, y_label):
@@ -145,7 +147,7 @@ def least_square_sklearn(X_train, X_test, y_train, y_test, order):
     test_r2 = r2_score(y_test, y_pred_test)
     print(f"Testing R-Squared Score (close to 1 = better):\t{test_r2:.6f}\n")
 
-# '''Least Square Method without using sklearn'''
+'''Least Square Method without using sklearn'''
 def least_squares_manual(x, y):
     X_T_X_inv = np.linalg.inv(x.T.dot(x))
     w = X_T_X_inv.dot(x.T).dot(y)
