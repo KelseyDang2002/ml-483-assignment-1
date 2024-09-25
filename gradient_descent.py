@@ -19,12 +19,13 @@ def main():
     print(f"y_test shape: {y_test.shape}")
     
     order = 1
-    learning_rate = 0.000000005
+    theta = np.random.randn((X_train.shape[1], 1)) # error here
+    learning_rate = 0.01
     iteration = 1000
     
     while order <= POLYNOMIAL_ORDER:
         try:
-            theta, cost_list = gradient_descent_model(X_train, X_test, y_train, y_test, order, learning_rate, iteration)
+            theta, cost_list = gradient_descent_model(X_train, X_test, y_train, y_test, order, theta, learning_rate, iteration)
             order += 1
         
         except KeyboardInterrupt:
@@ -94,23 +95,19 @@ def preprocess_dataset(X_train, X_test, order):
     return X_train_poly, X_test_poly
 
 '''Gradient Descent model'''
-def gradient_descent_model(X_train, X_test, y_train, y_test, order, learning_rate, iteration):
+def gradient_descent_model(X_train, X_test, y_train, y_test, order, theta, learning_rate, iteration):
     X_train_poly, X_test_poly = preprocess_dataset(X_train, X_test, order)
     
     start = time.time()
 
     m = y_train.size
-    theta = np.zeros((X_train[1], 1))
+    # theta = np.random.randn((X_train[1], 1)) # error here, define theta outside of function?
     cost_list = []
 
     for i in range(iteration):
         y_pred = np.dot(X_train, theta)
-
+        theta = theta - (1/m) * learning_rate * (np.dot(X_train.T,(y_pred - y_train)))
         cost = (1/(2*m)) * np.sum(np.square(y_pred - y_train))
-
-        d_theta = (1/m) * np.dot(X_train.T, y_pred - y_train)
-        theta = theta - learning_rate * d_theta
-
         cost_list.append(cost)
         
         if (i % (iteration / 10) == 0):
