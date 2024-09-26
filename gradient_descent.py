@@ -1,13 +1,12 @@
 import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
 from sklearn.preprocessing import PolynomialFeatures, StandardScaler
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import r2_score, mean_squared_error
 import time
 
 TEST_DATA_PERCENTAGE = 0.2
-POLYNOMIAL_ORDER = 1
+POLYNOMIAL_ORDER = 3
 
 '''Main'''
 def main():
@@ -19,29 +18,18 @@ def main():
     print(f"y_test shape: {y_test.shape}")
     
     order = 1
-    theta = np.random.randn((X_train.shape[1], 1)) # error here
-    learning_rate = 0.01
-    iteration = 1000
+    learning_rate = 0.000000132
+    iteration = 2000
     
     while order <= POLYNOMIAL_ORDER:
         try:
-            theta, cost_list = gradient_descent_model(X_train, X_test, y_train, y_test, order, theta, learning_rate, iteration)
+            theta, cost_list = gradient_descent_model(X_train, X_test, y_train, y_test, order, learning_rate, iteration)
+            print(f"Theta ({len(theta)}): {theta}")
             order += 1
         
         except KeyboardInterrupt:
-            print("Keyboard Interrupt\n")
+            print("\nKeyboard Interrupt")
             break
-
-# '''Plot'''
-# def plot(x_axis, y_axis, title, x_label, y_label):
-#     plt.scatter(x_axis, y_axis)
-#     plt.plot(x_axis, y_axis, c="red")
-#     plt.title(title)
-#     plt.xlabel(x_label)
-#     plt.ylabel(y_label)
-#     plt.xticks([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
-#     plt.yticks([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
-#     plt.show()
 
 '''Get training features and label column from data set'''
 def features_and_label():
@@ -95,26 +83,57 @@ def preprocess_dataset(X_train, X_test, order):
     return X_train_poly, X_test_poly
 
 '''Gradient Descent model'''
-def gradient_descent_model(X_train, X_test, y_train, y_test, order, theta, learning_rate, iteration):
+def gradient_descent_model(X_train, X_test, y_train, y_test, order, learning_rate, iteration):
     X_train_poly, X_test_poly = preprocess_dataset(X_train, X_test, order)
+    print(f"Learning Rate: {learning_rate:.9f}")
+    print(f"Iterations: {iteration}\n")
     
-    start = time.time()
+    # add column of ones to account for y-intercept
+    X_train_poly = np.hstack((np.ones((X_train_poly.shape[0], 1)), X_train_poly))
+    X_test_poly = np.hstack((np.ones((X_test_poly.shape[0], 1)), X_test_poly))
 
     m = y_train.size
-    # theta = np.random.randn((X_train[1], 1)) # error here, define theta outside of function?
+    theta = np.zeros((X_train_poly.shape[1]))
     cost_list = []
 
-    for i in range(iteration):
-        y_pred = np.dot(X_train, theta)
-        theta = theta - (1/m) * learning_rate * (np.dot(X_train.T,(y_pred - y_train)))
+    start = time.time()
+
+    # Stochastic Gradient Descent loop
+    for iteration in range(iteration):
+        for i in range(m):
+            # pick random sample from training data
+            random_sample = np.random.randint(m)
+            X_index = X_train_poly[random_sample:random_sample + 1] # select i-th example
+            y_index = y_train[random_sample:random_sample + 1] # select i-th example
+
+            # predict using current theta
+            y_pred_index = np.dot(X_index, theta)
+
+            gradient = X_index.T.dot(y_pred_index - y_index)
+            theta = theta - learning_rate * gradient
+        
+        y_pred = np.dot(X_train_poly, theta)
         cost = (1/(2*m)) * np.sum(np.square(y_pred - y_train))
         cost_list.append(cost)
-        
-        if (i % (iteration / 10) == 0):
-            print(f"Cost: {cost}")
+    
+        # print cost at every 100th iteration
+        if iteration % 100 == 0:
+            print(f"Iteration: {iteration}, Cost: {cost:.6f}")
 
     end = time.time()
+
+    train_rmse = np.sqrt(mean_squared_error(y_train, np.dot(X_train_poly, theta)))
+    train_r2 = r2_score(y_train, np.dot(X_train_poly, theta))
+    print(f"\nTraining RMSE Score (close to 0 = better):\t{train_rmse:.6f}")
+    print(f"Training R-Squared Score (close to 1 = better):\t{train_r2:.6f}\n")
+
+    test_rmse = np.sqrt(mean_squared_error(y_test, np.dot(X_test_poly, theta)))
+    test_r2 = r2_score(y_test, np.dot(X_test_poly, theta))
+    print(f"Testing RMSE Score (close to 0 = better):\t{test_rmse:.6f}")
+    print(f"Testing R-Squared Score (close to 1 = better):\t{test_r2:.6f}\n")
+        
     print(f"Training time: {end - start} seconds\n")
+
     return theta, cost_list
 
 '''Call main'''
