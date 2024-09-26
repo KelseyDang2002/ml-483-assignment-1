@@ -39,17 +39,6 @@ def main():
     train_r2 = r2_score(y_test, y_pred_test_manual)
     print(f"Testing R-Squared Score (close to 1 = better):\t{train_r2:.6f}\n")
 
-'''Plot'''
-def plot(x_axis, y_axis, title, x_label, y_label):
-    plt.scatter(x_axis, y_axis)
-    plt.plot(x_axis, y_axis, c="red")
-    plt.title(title)
-    plt.xlabel(x_label)
-    plt.ylabel(y_label)
-    plt.xticks([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
-    plt.yticks([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
-    plt.show()
-
 '''Get training features and label column from data set'''
 def features_and_label():
     # read csv file into dataframe
@@ -135,18 +124,16 @@ def least_square_sklearn(X_train, X_test, y_train, y_test, order):
 
     # predict quality based on X_train
     y_pred_train = lr.predict(X_train_poly)
-    # plot(y_train, y_pred_train, "Training", "Actual", "Predicted")
     train_rmse = np.sqrt(mean_squared_error(y_train, y_pred_train))
-    print(f"Training RMSE Score (close to 0 = better):\t{train_rmse:.6f}")
     train_r2 = r2_score(y_train, y_pred_train)
+    print(f"Training RMSE Score (close to 0 = better):\t{train_rmse:.6f}")
     print(f"Training R-Squared Score (close to 1 = better):\t{train_r2:.6f}\n")
     
     # predict quality based on X_test
     y_pred_test = lr.predict(X_test_poly)
-    # plot(y_test, y_pred_test, "Testing", "Actual", "Predicted")
     test_rmse = np.sqrt(mean_squared_error(y_test, y_pred_test))
-    print(f"Testing RMSE Score (close to 0 = better):\t{test_rmse:.6f}")
     test_r2 = r2_score(y_test, y_pred_test)
+    print(f"Testing RMSE Score (close to 0 = better):\t{test_rmse:.6f}")
     print(f"Testing R-Squared Score (close to 1 = better):\t{test_r2:.6f}\n")
 
 '''Least Square Method without using sklearn'''
